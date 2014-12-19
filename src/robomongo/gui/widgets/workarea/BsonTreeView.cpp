@@ -10,6 +10,8 @@
 #include "robomongo/gui/GuiRegistry.h"
 #include "robomongo/core/utils/QtUtils.h"
 
+#include "robomongo/gui/rviz/myviz.h"
+
 namespace Robomongo
 {
     BsonTreeView::BsonTreeView(MongoShell *shell, const MongoQueryInfo &queryInfo, QWidget *parent) 
@@ -30,6 +32,9 @@ namespace Robomongo
         _collapseRecursive = new QAction(tr("Collapse Recursively"), this);
         VERIFY(connect(_collapseRecursive, SIGNAL(triggered()), SLOT(onCollapseRecursive())));
 
+        _showRosMessage = new QAction(tr("Show ROS Message"), this);
+        VERIFY(connect(_showRosMessage, SIGNAL(triggered()), SLOT(onShowRosMessage())));
+
         setStyleSheet("QTreeView { border-left: 1px solid #c7c5c4; border-top: 1px solid #c7c5c4; }");
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         header()->setSectionResizeMode(QHeaderView::Interactive);
@@ -44,9 +49,10 @@ namespace Robomongo
         QModelIndexList indexes = selectedIndexes();
         if (detail::isMultiSelection(indexes)) {
             QMenu menu(this);
-            
+
             menu.addAction(_expandRecursive);
             menu.addAction(_collapseRecursive);
+            menu.addAction(_showRosMessage);
             menu.addSeparator();
             
             _notifier.initMultiSelectionMenu(&menu);
@@ -64,6 +70,7 @@ namespace Robomongo
                 if (detail::isDocumentType(documentItem)) {
                     menu.addAction(_expandRecursive);
                     menu.addAction(_collapseRecursive);
+                    menu.addAction(_showRosMessage);
                     menu.addSeparator();
                 }
             }
@@ -135,6 +142,38 @@ namespace Robomongo
         } else {
             collapseNode(selectedIndex());
         }
+    }
+
+    void BsonTreeView::onShowRosMessage()
+    {
+        QModelIndex index = selectedIndex();
+        BsonTreeItem* item = QtUtils::item<BsonTreeItem*>(index);
+        BsonTreeItem *idItem = item->childByKey("_id");
+        QString idValue;
+        if (idItem) {
+            idValue = idItem->value();
+        }
+        else {
+            std::cout << "Could not find _id entry" << std::endl;
+            return;
+        }
+
+        std::cout << "Got object ID: " << std::endl;
+        std::cout << idValue.toStdString() << std::endl;
+
+        /*QRegExp regexp("\\\"(.*)\\\")");
+        int pos = regexp.indexIn(idValue);
+        if (pos < 0) {
+            std::cout << "Not a valid Object id" << std::endl;
+        }
+        QString parsed = regexp.cap(0);*/
+
+        int first = idValue.indexOf("\"");
+        int second = idValue.indexOf("\"", first + 1);
+        QString parsed = idValue.mid(first+1, second-first-1);
+        std::cout << parsed.toStdString() << std::endl;
+
+        MyViz::show_visualizer("sensor_msgs/PointCloud2", parsed);
     }
 
     /**

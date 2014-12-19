@@ -781,9 +781,9 @@ if not windows:
 if not use_system_version_of_library("pcre"):
     env.Prepend(CPPPATH=[ '$BUILD_DIR/third_party/pcre-${PCRE_VERSION}' ])
 
-if not use_system_version_of_library("boost"):
-    env.Prepend(CPPPATH=['$BUILD_DIR/third_party/boost'],
-                CPPDEFINES=['BOOST_ALL_NO_LIB'])
+#if not use_system_version_of_library("boost"):
+    #env.Prepend(CPPPATH=['$BUILD_DIR/third_party/boost'],
+                #CPPDEFINES=['BOOST_ALL_NO_LIB'])
 
 env.Prepend(CPPPATH=['$BUILD_DIR/third_party/s2'])
 env.Prepend(CPPPATH=['$BUILD_DIR/third_party/libstemmer_c/include'])
@@ -1106,9 +1106,9 @@ if len(COMMAND_LINE_TARGETS) > 0 and 'uninstall' in COMMAND_LINE_TARGETS:
 clientEnv = env.Clone()
 clientEnv['CPPDEFINES'].remove('MONGO_EXPOSE_MACROS')
 
-if not use_system_version_of_library("boost"):
-    clientEnv.Append(LIBS=['boost_thread', 'boost_filesystem', 'boost_system'])
-    clientEnv.Prepend(LIBPATH=['$BUILD_DIR/third_party/boost/'])
+#if not use_system_version_of_library("boost"):
+    #clientEnv.Append(LIBS=['boost_thread', 'boost_filesystem', 'boost_system'])
+    #clientEnv.Prepend(LIBPATH=['$BUILD_DIR/third_party/boost/'])
 
 module_sconscripts = moduleconfig.get_module_sconscripts(mongo_modules)
 

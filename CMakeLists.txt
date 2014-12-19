@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.0)
-cmake_policy(SET CMP0048 OLD)
+#cmake_policy(SET CMP0048 OLD)
 
 ###
 # Settings
@@ -42,8 +42,8 @@ IF(WIN32)
     OPTION(MANIFEST_ENABLE "Enable Manifest" ON)
 ENDIF(WIN32)
 
-set(ROBOMONGO_QT_VERSION 5 CACHE STRING "Qt version to use when building Robomongo (can be 4 or 5)")
-OPTION(BOOST_ENABLED "Enable boost system support" OFF)
+set(ROBOMONGO_QT_VERSION 4 CACHE STRING "Qt version to use when building Robomongo (can be 4 or 5)")
+OPTION(BOOST_ENABLED "Enable boost system support" ON)
 OPTION(OPENSSL_ENABLED "Enable openssl support" ON)
 OPTION(SSH_ENABLED "Enable ssh support" ON)
 OPTION(CPACK_SUPPORT "Enable package support" ON)

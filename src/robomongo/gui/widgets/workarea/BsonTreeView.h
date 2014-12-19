@@ -23,6 +23,7 @@ namespace Robomongo
     private Q_SLOTS:
         void onExpandRecursive();
         void onCollapseRecursive();
+        void onShowRosMessage();
         void showContextMenu(const QPoint &point);
 
     protected:
@@ -33,5 +34,6 @@ namespace Robomongo
         Notifier _notifier;
         QAction *_expandRecursive;
         QAction *_collapseRecursive;
+        QAction *_showRosMessage;
     };
 }

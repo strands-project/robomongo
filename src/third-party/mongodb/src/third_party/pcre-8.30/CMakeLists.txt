@@ -68,7 +68,8 @@ SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake) # for FindReadline.cmake
 # external packages
 FIND_PACKAGE( BZip2 )
 FIND_PACKAGE( ZLIB )
-FIND_PACKAGE( Readline )
+#FIND_PACKAGE( Readline )
+INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/FindReadline.cmake)
 
 # Configuration checks
 

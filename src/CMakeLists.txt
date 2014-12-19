@@ -9,6 +9,8 @@ SET(PCRE_BUILD_TESTS OFF CACHE BOOL "Build the tests pcre tests.")
 SET(PCRE_BUILD_PCREGREP OFF CACHE BOOL "Build pcregrep")
 ADD_SUBDIRECTORY(third-party/mongodb/src/third_party/pcre-8.30 pcrecpp)
 
+#find_package(catkin REQUIRED COMPONENTS roscpp)
+
 SET(HEADERS_GUI_TO_MOC
     robomongo/gui/dialogs/ConnectionsDialog.h
     robomongo/gui/dialogs/ConnectionDialog.h
@@ -55,6 +57,7 @@ SET(HEADERS_GUI_TO_MOC
     robomongo/gui/dialogs/AboutDialog.h
     robomongo/gui/editors/FindFrame.h
     robomongo/gui/editors/PlainJavaScriptEditor.h
+    robomongo/gui/rviz/myviz.h
     )   
 SET(HEADERS_GUI
     robomongo/gui/utils/DialogUtils.h
@@ -114,6 +117,7 @@ SET(SOURCES_GUI
     robomongo/gui/dialogs/FunctionTextEditor.cpp
     robomongo/gui/dialogs/PreferencesDialog.cpp
     robomongo/gui/dialogs/AboutDialog.cpp
+    robomongo/gui/rviz/myviz.cpp
     )
 
 SET(HEADERS_SHELL
@@ -277,6 +281,7 @@ IF(OPENSSL_ENABLED)
     ADD_DEFINITIONS(-DMONGO_SSL)
 ENDIF(OPENSSL_ENABLED)
 
+SET(INCLUDE_DIRS ${INCLUDE_DIRS} /opt/ros/indigo/include /usr/include/OGRE)
 
 IF(SSH_ENABLED)
     SET(MONGODB_COMMAND ${MONGODB_COMMAND} --ssh)
@@ -359,9 +364,14 @@ IF(MINGW OR CMAKE_COMPILER_IS_GNUCXX OR APPLE)
     SET(MONGO_LIBRARIES ${MONGOCLIENT_RELEASE_LIBRARY})
     SET(ALL_LIBS ${MONGO_LIBRARIES} ${ALL_LIBS})
 
+    LINK_DIRECTORIES(/opt/ros/indigo/lib)
+    SET(ROS_LIBRARIES rviz rosconsole roscpp rqt_rviz message_store roscpp_serialization rostime)
+    #SET(ROS_LIBRARIES /opt/ros/indigo/lib/librviz.so /opt/ros/indigo/lib/librosconsole.so /opt/ros/indigo/lib/libroscpp.so)
+
     # Creating lib without main.cpp
     ADD_APP_LIBRARY(${ROBOMONGO_LIB} "${ALL_SOURCES}" "${ALL_LIBS}")
     ADD_DEPENDENCIES(${ROBOMONGO_LIB} build_mongoclient)
+    TARGET_LINK_LIBRARIES(${ROBOMONGO_LIB} ${ROS_LIBRARIES})
 
     # Creating executable
     ADD_APP_EXECUTABLE(${PROJECT_NAME} "${ROBOMONGO_EXECUTABLE_SOURCES}" "${ALL_LIBS}")
@@ -401,7 +411,7 @@ ELSEIF(MSVC)
 
     # Creating executable
     ADD_APP_EXECUTABLE_MSVC(${PROJECT_NAME} "${ROBOMONGO_EXECUTABLE_SOURCES}" "${ALL_LIBS}")
-    TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${ROBOMONGO_LIB})
+    TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${ROBOMONGO_LIB})# ${catkin_LIBRARIES})
 ELSE()
     MESSAGE(FATAL_ERROR "NOT SUPPORTED COMPILER!!!")
 ENDIF(MINGW OR CMAKE_COMPILER_IS_GNUCXX OR APPLE)
