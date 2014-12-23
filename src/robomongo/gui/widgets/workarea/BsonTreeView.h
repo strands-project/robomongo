@@ -35,5 +35,7 @@ namespace Robomongo
         QAction *_expandRecursive;
         QAction *_collapseRecursive;
         QAction *_showRosMessage;
+        QString _collection_name;
+        QString _database_name;
     };
 }

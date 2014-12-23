@@ -38,14 +38,31 @@
 #include "rviz/display.h"
 
 #include <ros/ros.h>
+
+#include <sensor_msgs/Image.h>
+#include <nav_msgs/GridCells.h>
+#include <visualization_msgs/InteractiveMarker.h>
+#include <sensor_msgs/LaserScan.h>
+#include <nav_msgs/OccupancyGrid.h> // this is actually rviz/Map
+#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
+#include <nav_msgs/Path.h>
+#include <geometry_msgs/PointStamped.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/PoseArray.h>
+#include <sensor_msgs/PointCloud.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <geometry_msgs/Polygon.h>
+#include <sensor_msgs/Range.h>
 
 #include "myviz.h"
 
 // BEGIN_TUTORIAL
 // Constructor for MyViz.  This does most of the work of the class.
-MyViz::MyViz(QWidget* parent, const QString& message_type, const QString& message_id)
-  : QWidget( parent )
+MyViz::MyViz(QWidget* parent, const QString& message_type, const QString& message_id,
+             const QString& frame_id, const QString& topic,
+             const QString &collection_name, const QString &database_name)
+  : QWidget( parent ), collection_name_(collection_name), database_name_(database_name)
 {
   /*// Construct and lay out labels and slider controls.
   QLabel* thickness_label = new QLabel( "Line Thickness" );
@@ -83,7 +100,7 @@ MyViz::MyViz(QWidget* parent, const QString& message_type, const QString& messag
   // librviz.
   manager_ = new rviz::VisualizationManager( render_panel_ );
   render_panel_->initialize( manager_->getSceneManager(), manager_ );
-  manager_->setFixedFrame("/base_link");
+  manager_->setFixedFrame(frame_id);
   manager_->initialize();
   manager_->startUpdate();
 
@@ -92,11 +109,17 @@ MyViz::MyViz(QWidget* parent, const QString& message_type, const QString& messag
   ROS_ASSERT( grid_ != NULL );
 
   QStringList pieces = message_type.split("/");
-  QString rviz_message = QString("rviz/") + pieces.value(1);
+  QString rviz_message;
+  if (pieces.value(1) == "OccupancyGrid") {
+      rviz_message = "rviz/Map";
+  }
+  else {
+      rviz_message = QString("rviz/") + pieces.value(1);
+  }
   std::cout << message_type.toStdString() << std::endl;
   std::cout << rviz_message.toStdString() << std::endl;
   message_ = manager_->createDisplay(rviz_message, message_type, true);
-  message_->setTopic("/robomongo_viz", message_type);
+  message_->setTopic(topic, message_type);
 
 
   // Configure the GridDisplay the way we like it.
@@ -107,10 +130,63 @@ MyViz::MyViz(QWidget* parent, const QString& message_type, const QString& messag
   //thickness_slider->setValue( 25 );
   //cell_size_slider->setValue( 10 );
 
-  publish_message<sensor_msgs::PointCloud2>(message_id);
+  //publish_message<sensor_msgs::PointCloud2>(message_id, topic);
+  cast_and_publish_message(message_id, topic, message_type);
 
   this->setAttribute(Qt::WA_DeleteOnClose);
   //connect(this, SIGNAL(destroyed(QObject*)), this, SLOT(widgetDestroyed(QObject*)) );
+}
+
+void MyViz::cast_and_publish_message(const QString& message_id, const QString& topic, const QString& message_type)
+{
+    if(message_type == "sensor_msgs/Image") {
+        publish_message<sensor_msgs::Image>(message_id, topic);
+    }
+    else if(message_type == "nav_msgs/GridCells") {
+        publish_message<nav_msgs::GridCells>(message_id, topic);
+    }
+    else if(message_type == "visualization_msgs/InteractiveMarker") {
+        publish_message<visualization_msgs::InteractiveMarker>(message_id, topic);
+    }
+    else if(message_type == "sensor_msgs/LaserScan") {
+        publish_message<sensor_msgs::LaserScan>(message_id, topic);
+    }
+    else if(message_type == "nav_msgs/OccupancyGrid") {
+        publish_message<nav_msgs::OccupancyGrid>(message_id, topic);
+    }
+    else if(message_type == "visualization_msgs/Marker") {
+        publish_message<visualization_msgs::Marker>(message_id, topic);
+    }
+    else if(message_type == "visualization_msgs/MarkerArray") {
+        publish_message<visualization_msgs::MarkerArray>(message_id, topic);
+    }
+    else if(message_type == "nav_msgs/Path") {
+        publish_message<nav_msgs::Path>(message_id, topic);
+    }
+    else if(message_type == "geometry_msgs/PointStamped") {
+        publish_message<geometry_msgs::PointStamped>(message_id, topic);
+    }
+    else if(message_type == "geometry_msgs/PoseStamped") {
+        publish_message<geometry_msgs::PoseStamped>(message_id, topic);
+    }
+    else if(message_type == "geometry_msgs/PoseArray") {
+        publish_message<geometry_msgs::PoseArray>(message_id, topic);
+    }
+    else if(message_type == "sensor_msgs/PointCloud") {
+        publish_message<sensor_msgs::PointCloud>(message_id, topic);
+    }
+    else if(message_type == "sensor_msgs/PointCloud2") {
+        publish_message<sensor_msgs::PointCloud2>(message_id, topic);
+    }
+    else if(message_type == "geometry_msgs/Polygon") {
+        publish_message<geometry_msgs::Polygon>(message_id, topic);
+    }
+    else if(message_type == "sensor_msgs/Range") {
+        publish_message<sensor_msgs::Range>(message_id, topic);
+    }
+    else {
+        return;
+    }
 }
 
 // Destructor.
@@ -141,13 +217,15 @@ void MyViz::setCellSize( int cell_size_percent )
   }
 }
 
-void MyViz::show_visualizer(const QString& message_type, const QString& message_id)
+void MyViz::show_visualizer(const QString& message_type, const QString& message_id,
+                            const QString& frame_id, const QString& topic,
+                            const QString &collection_name, const QString &database_name)
 {
     if( !ros::isInitialized() )
     {
         ros::init(std::vector<std::pair<std::string, std::string> >(), "myviz", ros::init_options::AnonymousName);
     }
 
-    MyViz* myviz = new MyViz(0, message_type, message_id);
+    MyViz* myviz = new MyViz(0, message_type, message_id, frame_id, topic, collection_name, database_name);
     myviz->show();
 }

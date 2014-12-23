@@ -45,33 +45,39 @@ class MyViz: public QWidget
 {
 Q_OBJECT
 public:
-  MyViz(QWidget* parent = 0, const QString& message_type = "", const QString &message_id = "");
+  MyViz(QWidget* parent = 0, const QString& message_type = "", const QString &message_id = "",
+        const QString& frame_id = "", const QString& topic = "",
+        const QString &collection_name = "", const QString &database_name = "");
   virtual ~MyViz();
-  static void show_visualizer(const QString &message_type, const QString &message_id);
+  static void show_visualizer(const QString &message_type, const QString &message_id,
+                              const QString &frame_id, const QString &topic,
+                              const QString &collection_name, const QString &database_name);
 
 private Q_SLOTS:
   void setThickness( int thickness_percent );
   void setCellSize( int cell_size_percent );
 
 private:
+  QString collection_name_;
+  QString database_name_;
   rviz::VisualizationManager* manager_;
   rviz::RenderPanel* render_panel_;
   rviz::Display* grid_;
   rviz::Display* message_;
-
+  void cast_and_publish_message(const QString& message_id, const QString& topic, const QString& message_type);
   template <typename MsgType>
-  bool publish_message(const QString& id)
+  bool publish_message(const QString& id, const QString& topic)
   {
       ros::NodeHandle nh("~");
       //Create object which does the work for us.
-      mongodb_store::MessageStoreProxy messageStore(nh, "cloud_pcd", "roslog");
+      mongodb_store::MessageStoreProxy messageStore(nh, collection_name_.toStdString(), database_name_.toStdString());
       std::vector< boost::shared_ptr<MsgType> > results;
       messageStore.queryID<MsgType>(id.toStdString(), results);
       if (results.empty()) {
           std::cout << "Did not find any point clouds with this ID" << std::endl;
           return false;
       }
-      ros::Publisher pub = nh.advertise<MsgType>("/robomongo_viz", 1, true);
+      ros::Publisher pub = nh.advertise<MsgType>(topic.toStdString(), 1, true);
       pub.publish(*results[0]);
       ros::spinOnce();
       return true;

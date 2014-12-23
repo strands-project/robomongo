@@ -15,11 +15,14 @@
 namespace Robomongo
 {
     BsonTreeView::BsonTreeView(MongoShell *shell, const MongoQueryInfo &queryInfo, QWidget *parent) 
-        : BaseClass(parent),_notifier(this,shell,queryInfo)
+        : BaseClass(parent),_notifier(this,shell,queryInfo),
+          _collection_name(QString::fromStdString(queryInfo._info._ns.collectionName())),
+          _database_name(QString::fromStdString(queryInfo._info._ns.databaseName()))
     {
 #if defined(Q_OS_MAC)
         setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
+
         GuiRegistry::instance().setAlternatingColor(this);
         setSelectionMode(QAbstractItemView::ExtendedSelection);
         setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -147,33 +150,53 @@ namespace Robomongo
     void BsonTreeView::onShowRosMessage()
     {
         QModelIndex index = selectedIndex();
-        BsonTreeItem* item = QtUtils::item<BsonTreeItem*>(index);
-        BsonTreeItem *idItem = item->childByKey("_id");
-        QString idValue;
-        if (idItem) {
-            idValue = idItem->value();
-        }
-        else {
-            std::cout << "Could not find _id entry" << std::endl;
+        BsonTreeItem *node = QtUtils::item<BsonTreeItem*>(index);
+        if (!node) {
             return;
         }
-
-        std::cout << "Got object ID: " << std::endl;
-        std::cout << idValue.toStdString() << std::endl;
-
-        /*QRegExp regexp("\\\"(.*)\\\")");
-        int pos = regexp.indexIn(idValue);
-        if (pos < 0) {
-            std::cout << "Not a valid Object id" << std::endl;
+        mongo::BSONObj obj = node->root();
+        mongo::BSONElement id_elem;
+        if (!obj.getObjectID(id_elem)) {
+            return;
         }
-        QString parsed = regexp.cap(0);*/
+        mongo::OID id = id_elem.OID();
+        std::string message_id = id.toString();
+        if (!obj.hasField("header")) {
+            return;
+        }
+        mongo::BSONElement header_elem = obj.getField("header");
+        mongo::BSONObj header_obj = header_elem.Obj();
+        if (!header_obj.hasField("frame_id")) {
+            return;
+        }
+        std::string frame_id = header_obj.getStringField("frame_id");
+        if (!obj.hasField("_meta")) {
+            return;
+        }
+        mongo::BSONElement meta_elem = obj.getField("_meta");
+        mongo::BSONObj meta_obj = meta_elem.Obj();
+        if (!meta_obj.hasField("stored_type")) {
+            return;
+        }
+        std::string message_type = meta_obj.getStringField("stored_type");
+        std::string topic;
+        if (meta_obj.hasField("topic")) {
+            topic = meta_obj.getStringField("topic");
+        }
+        else {
+            topic = "/robomongo_viz";
+        }
 
-        int first = idValue.indexOf("\"");
-        int second = idValue.indexOf("\"", first + 1);
-        QString parsed = idValue.mid(first+1, second-first-1);
-        std::cout << parsed.toStdString() << std::endl;
 
-        MyViz::show_visualizer("sensor_msgs/PointCloud2", parsed);
+
+        std::cout << message_type << std::endl;
+        std::cout << message_id << std::endl;
+        std::cout << frame_id << std::endl;
+        std::cout << topic << std::endl;
+
+        MyViz::show_visualizer(QString::fromStdString(message_type), QString::fromStdString(message_id),
+                               QString::fromStdString(frame_id), QString::fromStdString(topic),
+                               _collection_name, _database_name);
     }
 
     /**
