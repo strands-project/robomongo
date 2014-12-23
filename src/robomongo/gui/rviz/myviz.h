@@ -80,6 +80,8 @@ private:
       ros::Publisher pub = nh.advertise<MsgType>(topic.toStdString(), 1, true);
       pub.publish(*results[0]);
       ros::spinOnce();
+      pub.publish(*results[0]);
+      ros::spinOnce();
       return true;
   }
 };
