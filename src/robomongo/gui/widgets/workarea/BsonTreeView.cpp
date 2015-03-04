@@ -4,6 +4,7 @@
 #include <QAction>
 #include <QMenu>
 #include <QKeyEvent>
+#include <QMessageBox>
 
 #include "robomongo/gui/widgets/workarea/BsonTreeItem.h"
 
@@ -55,6 +56,7 @@ namespace Robomongo
 
             menu.addAction(_expandRecursive);
             menu.addAction(_collapseRecursive);
+            menu.addSeparator();
             menu.addAction(_showRosMessage);
             menu.addSeparator();
             
@@ -73,6 +75,7 @@ namespace Robomongo
                 if (detail::isDocumentType(documentItem)) {
                     menu.addAction(_expandRecursive);
                     menu.addAction(_collapseRecursive);
+                    menu.addSeparator();
                     menu.addAction(_showRosMessage);
                     menu.addSeparator();
                 }
@@ -152,50 +155,49 @@ namespace Robomongo
         QModelIndex index = selectedIndex();
         BsonTreeItem *node = QtUtils::item<BsonTreeItem*>(index);
         if (!node) {
+            QMessageBox::critical(NULL, "No valid Rviz message", "Could not get message handle.");
             return;
         }
         mongo::BSONObj obj = node->root();
         mongo::BSONElement id_elem;
         if (!obj.getObjectID(id_elem)) {
+            QMessageBox::critical(NULL, "No valid Rviz message", "Could not get message ID.");
             return;
         }
         mongo::OID id = id_elem.OID();
         std::string message_id = id.toString();
         if (!obj.hasField("header")) {
+            QMessageBox::critical(NULL, "No valid Rviz message", "Message needs header field.");
             return;
         }
         mongo::BSONElement header_elem = obj.getField("header");
         mongo::BSONObj header_obj = header_elem.Obj();
         if (!header_obj.hasField("frame_id")) {
+            QMessageBox::critical(NULL, "No valid Rviz message", "Message header needs frame_id field.");
             return;
         }
         std::string frame_id = header_obj.getStringField("frame_id");
         if (!obj.hasField("_meta")) {
+            QMessageBox::critical(NULL, "No valid Rviz message", "Message needs _meta field.");
             return;
         }
         mongo::BSONElement meta_elem = obj.getField("_meta");
         mongo::BSONObj meta_obj = meta_elem.Obj();
         if (!meta_obj.hasField("stored_type")) {
+            QMessageBox::critical(NULL, "No valid Rviz message", "Message meta needs stored_type field.");
             return;
         }
         std::string message_type = meta_obj.getStringField("stored_type");
-        std::string topic;
+        QString topic;
         if (meta_obj.hasField("topic")) {
-            topic = meta_obj.getStringField("topic");
+            topic = QString("/robomongo") + meta_obj.getStringField("topic");
         }
         else {
-            topic = "/robomongo_viz";
+            topic = "/robomongo";
         }
 
-
-
-        std::cout << message_type << std::endl;
-        std::cout << message_id << std::endl;
-        std::cout << frame_id << std::endl;
-        std::cout << topic << std::endl;
-
         MyViz::show_visualizer(QString::fromStdString(message_type), QString::fromStdString(message_id),
-                               QString::fromStdString(frame_id), QString::fromStdString(topic),
+                               QString::fromStdString(frame_id), topic,
                                _collection_name, _database_name);
     }
 

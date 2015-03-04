@@ -32,6 +32,7 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QApplication>
+#include <QMessageBox>
 
 #include "rviz/visualization_manager.h"
 #include "rviz/render_panel.h"
@@ -185,6 +186,7 @@ void MyViz::cast_and_publish_message(const QString& message_id, const QString& t
         publish_message<sensor_msgs::Range>(message_id, topic);
     }
     else {
+        QMessageBox::critical(NULL, "No valid Rviz message", message_type + " is not a valid Rviz message.");
         return;
     }
 }
@@ -221,7 +223,7 @@ void MyViz::show_visualizer(const QString& message_type, const QString& message_
                             const QString& frame_id, const QString& topic,
                             const QString &collection_name, const QString &database_name)
 {
-    if( !ros::isInitialized() )
+    if(!ros::isInitialized())
     {
         ros::init(std::vector<std::pair<std::string, std::string> >(), "myviz", ros::init_options::AnonymousName);
     }
