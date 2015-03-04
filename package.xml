@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package>
+  <name>robomongo</name>
+  <version>0.0.1</version>
+  <description>Robomongo Interface for MongoDB with support for visualizing serialized ROS messages</description>
+
+  <maintainer email="nilsbore@gmail.com">Nils Bore</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>cmake</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>rostime</build_depend>
+  <build_depend>rviz</build_depend>
+  <build_depend>rqt_rviz</build_depend>
+  <build_depend>roscpp_serialization</build_depend>
+  <build_depend>rosconsole</build_depend>
+  <build_depend>scons</build_depend>
+  <build_depend>libogre-dev</build_depend>
+  <build_depend>mongodb_store</build_depend>
+
+  <run_depend>roscpp</run_depend>
+  <run_depend>rostime</run_depend>
+  <run_depend>rviz</run_depend>
+  <run_depend>rqt_rviz</run_depend>
+  <run_depend>roscpp_serialization</build_depend>
+  <run_depend>rosconsole</run_depend>
+  <run_depend>libogre-dev</run_depend>
+  <run_depend>mongodb_store</run_depend>
+  <run_depend>catkin</run_depend>
+
+  <export>
+    <build_type>cmake</build_type>
+  </export>
+</package>
