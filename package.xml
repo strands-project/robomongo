@@ -23,7 +23,7 @@
   <run_depend>rostime</run_depend>
   <run_depend>rviz</run_depend>
   <run_depend>rqt_rviz</run_depend>
-  <run_depend>roscpp_serialization</build_depend>
+  <run_depend>roscpp_serialization</run_depend>
   <run_depend>rosconsole</run_depend>
   <run_depend>libogre-dev</run_depend>
   <run_depend>mongodb_store</run_depend>
