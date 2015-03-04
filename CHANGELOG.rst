@@ -2,8 +2,8 @@
 Changelog for package robomongo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2015-03-04)
+------------------
 * copy-paste error
 * Added catkin package for building on build server
 * Added cmake find files for ogre and ros
