@@ -228,6 +228,11 @@ void MyViz::show_visualizer(const QString& message_type, const QString& message_
         ros::init(std::vector<std::pair<std::string, std::string> >(), "myviz", ros::init_options::AnonymousName);
     }
 
+    if (!ros::master::check()) {
+        QMessageBox::critical(NULL, "No ROS core found", "ROS core does not seem to be running. Please start it and mongodb_store.");
+        return;
+    }
+
     MyViz* myviz = new MyViz(0, message_type, message_id, frame_id, topic, collection_name, database_name);
     myviz->show();
 }
