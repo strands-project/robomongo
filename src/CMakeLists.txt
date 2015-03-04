@@ -9,8 +9,6 @@ SET(PCRE_BUILD_TESTS OFF CACHE BOOL "Build the tests pcre tests.")
 SET(PCRE_BUILD_PCREGREP OFF CACHE BOOL "Build pcregrep")
 ADD_SUBDIRECTORY(third-party/mongodb/src/third_party/pcre-8.30 pcrecpp)
 
-#find_package(catkin REQUIRED COMPONENTS roscpp)
-
 SET(HEADERS_GUI_TO_MOC
     robomongo/gui/dialogs/ConnectionsDialog.h
     robomongo/gui/dialogs/ConnectionDialog.h
@@ -281,7 +279,10 @@ IF(OPENSSL_ENABLED)
     ADD_DEFINITIONS(-DMONGO_SSL)
 ENDIF(OPENSSL_ENABLED)
 
-SET(INCLUDE_DIRS ${INCLUDE_DIRS} /opt/ros/indigo/include /usr/include/OGRE)
+find_package(OGRE REQUIRED)
+find_package(ROS REQUIRED)
+
+SET(INCLUDE_DIRS ${INCLUDE_DIRS} ${ROS_INCLUDE_DIR} ${OGRE_INCLUDE_DIR})
 
 IF(SSH_ENABLED)
     SET(MONGODB_COMMAND ${MONGODB_COMMAND} --ssh)
@@ -364,9 +365,7 @@ IF(MINGW OR CMAKE_COMPILER_IS_GNUCXX OR APPLE)
     SET(MONGO_LIBRARIES ${MONGOCLIENT_RELEASE_LIBRARY})
     SET(ALL_LIBS ${MONGO_LIBRARIES} ${ALL_LIBS})
 
-    LINK_DIRECTORIES(/opt/ros/indigo/lib)
-    SET(ROS_LIBRARIES rviz rosconsole roscpp rqt_rviz message_store roscpp_serialization rostime)
-    #SET(ROS_LIBRARIES /opt/ros/indigo/lib/librviz.so /opt/ros/indigo/lib/librosconsole.so /opt/ros/indigo/lib/libroscpp.so)
+    LINK_DIRECTORIES(${ROS_LIBRARY_DIR})
 
     # Creating lib without main.cpp
     ADD_APP_LIBRARY(${ROBOMONGO_LIB} "${ALL_SOURCES}" "${ALL_LIBS}")
