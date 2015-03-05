@@ -2,8 +2,8 @@
 Changelog for package robomongo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.3 (2015-03-05)
+------------------
 * Merge pull request `#1 <https://github.com/strands-project/robomongo/issues/1>`_ from nilsbore/master
   Changed default install location
 * Merge remote-tracking branch 'strands/master'

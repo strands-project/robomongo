@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>robomongo</name>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
   <description>Robomongo Interface for MongoDB with support for visualizing serialized ROS messages</description>
 
   <maintainer email="nilsbore@gmail.com">Nils Bore</maintainer>
