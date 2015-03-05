@@ -2,6 +2,14 @@
 Changelog for package robomongo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#1 <https://github.com/strands-project/robomongo/issues/1>`_ from nilsbore/master
+  Changed default install location
+* Merge remote-tracking branch 'strands/master'
+* Changed default install location
+* Contributors: Marc Hanheide, Nils Bore
+
 0.0.2 (2015-03-04)
 ------------------
 * copy-paste error
