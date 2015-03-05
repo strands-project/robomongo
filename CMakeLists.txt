@@ -140,7 +140,8 @@ ENDIF()
 
 ##################################DEFAULT VALUES##########################################
 IF(NOT CMAKE_INSTALL_PREFIX})
-    SET(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install")
+    #SET(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install")
+    SET(CMAKE_INSTALL_PREFIX "/opt/ros/$ENV{ROS_DISTRO}")
 ENDIF()
 
 IF("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
